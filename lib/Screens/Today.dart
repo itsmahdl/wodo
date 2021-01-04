@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:wodo/database_helper.dart';
+import 'package:wodo/widgets/todays.dart';
+
+class Today extends StatefulWidget {
+  @override
+  _TestState createState() => _TestState();
+}
+
+class _TestState extends State<Today> {
+  DatabaseHelper dbHelper = DatabaseHelper();
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+        child: Scaffold(
+          backgroundColor: Color(0xffffe5d5),
+          body: ListView(
+      children: [
+          Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: Text(
+                    'Today',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+                  ),
+                ),
+                FutureBuilder(
+                  initialData: [],
+                  future: dbHelper.getTasks(),
+                  builder: (context, snapshot) {
+                    return ListView.builder(
+                        itemCount: snapshot.data.length,
+                        shrinkWrap: true,
+                        // ignore: missing_return
+                        itemBuilder: (context, index) {
+                          final now = DateTime.now();
+                          final time = DateTime.parse(snapshot.data[index].date);
+                          var databaseFormated =
+                              DateFormat.MMMd().add_Hm().format(time);
+                          if (now.year == time.year &&
+                              now.month == time.month &&
+                              now.day == time.day) {
+                            return Todays(
+                                snapshot.data[index].name != null
+                                    ? snapshot.data[index].name
+                                    : '',
+                                databaseFormated);
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        });
+                  },
+                ),
+              ])
+      ],
+    ),
+        ));
+  }
+}
